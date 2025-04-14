@@ -50,3 +50,5 @@ Make sure you have the following installed:
    ```bash
    git clone https://github.com/joydeep-das/imf-gadget-api.git
    cd imf-gadget-api
+   npm i
+   npm run dev
