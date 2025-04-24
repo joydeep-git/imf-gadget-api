@@ -97,7 +97,7 @@ class Postgre {
 
         CREATE TABLE IF NOT EXISTS gadgets(
           id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-          name VARCHAR(50) NOT NULL,
+          name VARCHAR(50) UNIQUE NOT NULL,
           codename VARCHAR(50) NOT NULL,
           status gadgetStatus NOT NULL DEFAULT 'Available',
           created_by UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
