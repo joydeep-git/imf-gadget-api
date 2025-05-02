@@ -27,6 +27,7 @@ export interface UserDataType {
 }
 
 
+
 export interface GadgetDataType {
   id: string;
   name: string;
@@ -44,4 +45,34 @@ export interface GadgetDataType {
 export interface BlacklistedTokenType {
   token: string;
   blacklisted_at: Date;
+}
+
+
+
+export type CreateNewGadgetType = {
+  name: string;
+  userId: string;
+}
+
+
+
+export type GetGadgetDetailsType = {
+  userId: string;
+  gadgetId?: string;
+  status?: string;
+  name?: string;
+}
+
+
+export type UpdateGadgetType = {
+  gadgetId: string;
+  name?: string;
+  status?: string;
+}
+
+
+export interface ChangeStatusDataType {
+  gadgetId: string;
+  status: 'Available' | 'Deployed' | 'Destroyed' | 'Decommissioned';
+  updateDecommission?: boolean;
 }
