@@ -2,6 +2,8 @@
 
 import { adjectives, starWars, uniqueNamesGenerator } from "unique-names-generator";
 import ErrorHandler from "../errorHandlers/errorHandler";
+import { DatabaseError } from "pg";
+import postgreErrorHandler from "../errorHandlers/postgreErrorHandler";
 
 
 
@@ -42,6 +44,16 @@ export const randomProbablityGenerator = (): string => {
 
 
 // random code generator
-export const randomCodeGenerator = (): number => {
-  return Math.floor((Math.random() * Math.random()) * 459852.65);
+export const randomCodeGenerator = (): string => {
+  return Math.floor((Math.random() * Math.random()) * 459852.65).toString();
+}
+
+
+// Checking if the status is valid
+export const isValidStatus = (status: string): boolean => {
+
+  const allStats: string[] = [ 'Available', 'Deployed', 'Destroyed', 'Decommissioned' ];
+
+  return allStats.includes(status);
+
 }
