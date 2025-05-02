@@ -55,12 +55,8 @@ class AuthController {
 
       const newUser: UserDataType = await authModel.createNewUser({ name, email: email.toLowerCase(), hashedPassword });
 
-      // #### create token // token expiry 1 day
-      const token = jwt.sign({ userId: newUser.id }, process.env.JWT_SECRET_KEY!, { expiresIn: "1d" } );
-
-
       // #### SET cookie and SEND response back to user
-      res.cookie("token", token).status(StatusCode.CREATED).json({
+      res.status(StatusCode.CREATED).json({
         message: "Account created  successfully!",
         data: newUser,
       });
