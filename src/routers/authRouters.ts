@@ -19,7 +19,7 @@ class AuthRouter {
     this.router.post("/register", authController.signUp);
 
 
-    this.router.delete("/logout/:id", tokenValidator, authController.signOut);
+    this.router.post("/logout/:id", tokenValidator, authController.signOut);
 
 
     this.router.patch("/update/:id", tokenValidator, authController.updateUser);
