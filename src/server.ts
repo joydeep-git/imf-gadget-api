@@ -3,7 +3,7 @@
 // third party
 import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
-import express, { Application } from "express";
+import express, { Application, Request, Response } from "express";
 import errorMiddleware from "./middleware/errorMiddleware";
 import authRouter from "./routers/authRouters";
 import gadgetRouter from "./routers/gadgetRouters";
@@ -74,6 +74,15 @@ class Server {
 
     this.app.use("/api/user", authRouter);
     this.app.use("/api/gadget", gadgetRouter);
+
+
+    // CORN JOB to keep the server running
+    this.app.get("/api/alive", (req: Request, res: Response) => {
+      res.status(200).json({
+        messge: "I am alive",
+        data: {}
+      })
+    });
 
   }
 
