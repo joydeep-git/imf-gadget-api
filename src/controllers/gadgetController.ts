@@ -48,6 +48,13 @@ class GadgetController {
     const { name, status }: { name?: string; status?: string; } = req.query;
 
 
+    // ONLY 1 ACCEPTED
+    // check if user has passed both and show error
+    if (gadgetId && (name || status)) {
+      return next(errRes("Please either use Gadget ID or Query Params, both are not allowed!", StatusCode.BAD_REQUEST));
+    }
+
+
     // step by step checking, if gadgetId then what, if queries then and when no other details
 
     try {
