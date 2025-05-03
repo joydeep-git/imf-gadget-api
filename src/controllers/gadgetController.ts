@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import gadgetModel from "../models/gadgetModel";
 import { GadgetDataType, StatusCode } from "../types";
-import { errRes, isValidStatus } from "../utils/helperFunctions";
+import { errRes, errRouter, isValidStatus } from "../utils/helperFunctions";
 import { DatabaseError } from "pg";
 import postgreErrorHandler from "../errorHandlers/postgreErrorHandler";
 
@@ -31,7 +31,9 @@ class GadgetController {
         data: newGadget
       });
     } catch (err) {
-      return next((err instanceof DatabaseError) ? postgreErrorHandler(err) : errRes("Error Creating gadget", StatusCode.BAD_REQUEST));
+
+      return next(errRouter(err, "Error Creating gadget!"));
+
     }
 
   }
@@ -119,11 +121,9 @@ class GadgetController {
 
 
     } catch (err) {
-      return err instanceof DatabaseError
-        ? next(postgreErrorHandler(err))
-        : next(
-          errRes("Error fetching gadgets!", StatusCode.INTERNAL_SERVER_ERROR)
-        );
+
+      return next(errRouter(err, "Error fetching gadgets!"));
+
     }
 
   }
@@ -144,7 +144,7 @@ class GadgetController {
 
     } catch (err) {
 
-      return next(err instanceof DatabaseError ? postgreErrorHandler(err) : errRes("Error in Self Destruct!", StatusCode.INTERNAL_SERVER_ERROR))
+      return next(errRouter(err, "Error in Self Destruct!"));
 
     }
 
@@ -154,19 +154,20 @@ class GadgetController {
 
   public async updateGadget(req: Request, res: Response, next: NextFunction): Promise<void> {
 
-    const { name, action } = req.params;
+    const { name, action } = req.body;
 
+    const actionStates: string[] = ["deploy", "withdraw"];
 
     // validate action
 
-    if (action && (action.toLowerCase() !== "deploy" || "withdraw")) {
+    if (action && !actionStates.includes(action.toLowerCase())) {
       return next(errRes("Wrong Action! Only 'Deploy' & 'Withdraw' is accepted.", StatusCode.BAD_REQUEST));
     }
 
 
     try {
 
-      const data = await gadgetModel.updateGadget({ gadgetId: req.gadget.id, name, status: action });
+      const data = await gadgetModel.updateGadget({ gadgetId: req.gadget.id, name, status: action.toLowerCase() === "deploy" ? "Deployed" : "Available" });
 
       res.status(StatusCode.OK).json({
         success: true,
@@ -175,13 +176,9 @@ class GadgetController {
       });
 
     } catch (err) {
-      return next(
-        
-        err instanceof DatabaseError
-          ? postgreErrorHandler(err)
-          : errRes("Error in Gadget Update!", StatusCode.INTERNAL_SERVER_ERROR)
 
-      )
+      return next(errRouter(err, "Error in Gadget Update!"));
+
     }
 
 
@@ -190,7 +187,6 @@ class GadgetController {
 
 
   public async deleteGadget(req: Request, res: Response, next: NextFunction): Promise<void> {
-
 
     try {
 
@@ -204,11 +200,7 @@ class GadgetController {
 
     } catch (err) {
 
-      return next(
-        err instanceof DatabaseError
-          ? postgreErrorHandler(err)
-          : errRes("Error deleting gadget!", StatusCode.INTERNAL_SERVER_ERROR)
-      )
+      return next(errRouter(err, "Error deleting gadget!"));
 
     }
 
