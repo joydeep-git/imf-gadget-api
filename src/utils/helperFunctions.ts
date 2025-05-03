@@ -4,6 +4,7 @@ import { adjectives, starWars, uniqueNamesGenerator } from "unique-names-generat
 import ErrorHandler from "../errorHandlers/errorHandler";
 import { DatabaseError } from "pg";
 import postgreErrorHandler from "../errorHandlers/postgreErrorHandler";
+import { StatusCode } from "../types";
 
 
 
@@ -23,6 +24,27 @@ export const randomNameGenerator = (): string => {
 export const errRes = (message: string, status: number): ErrorHandler => {
   return new ErrorHandler({ message, status });
 }
+
+
+
+// Error response validator
+export const errRouter = (err: unknown, fallbackMessage: string) => {
+
+  if (err instanceof DatabaseError) {
+
+    return postgreErrorHandler(err);
+
+  } else if (err instanceof Error) {
+
+    return errRes(err.message, StatusCode.INTERNAL_SERVER_ERROR);
+
+  } else {
+
+    return errRes(fallbackMessage, StatusCode.INTERNAL_SERVER_ERROR);
+
+  }
+
+};
 
 
 // test email
@@ -57,3 +79,5 @@ export const isValidStatus = (status: string): boolean => {
   return allStats.includes(status);
 
 }
+
+
