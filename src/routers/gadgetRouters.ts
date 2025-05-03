@@ -18,7 +18,7 @@ class GadgetRouter {
     this.router.get("/:id/get/:gadgetId?", tokenValidator, gadgetController.getGadgets);
 
 
-    this.router.post("/:id/self-destruct/:gadgetId", tokenValidator, gadgetValidator, gadgetController.selfDestruct);
+    this.router.delete("/:id/self-destruct/:gadgetId", tokenValidator, gadgetValidator, gadgetController.selfDestruct);
 
 
     this.router.patch("/:id/update/:gadgetId", tokenValidator, gadgetValidator, gadgetController.updateGadget);
