@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { errRes, isValidEmail } from "../utils/helperFunctions";
+import { errRes, errRouter, isValidEmail } from "../utils/helperFunctions";
 import { BlacklistedTokenType, StatusCode, UserDataType } from "../types";
 import authModel from "../models/authModel";
 import bcrypt from "bcryptjs";
@@ -63,11 +63,7 @@ class AuthController {
 
     } catch (err) {
 
-      if (err instanceof DatabaseError) {
-        postgreErrorHandler(err);
-      } else {
-        return next(errRes("Error on creating new user!", StatusCode.INTERNAL_SERVER_ERROR));
-      }
+      return next(errRouter(err, "Error on creating new user!"));
 
     }
 
@@ -77,13 +73,19 @@ class AuthController {
 
 
   // ######## GET user details
-  public getDetails(req: Request, res: Response) {
+  public getDetails(req: Request, res: Response, next: NextFunction) {
 
-    res.status(StatusCode.OK).json({
-      success: true,
-      message: "User data fetched!",
-      data: req.user
-    });
+    try {
+
+      res.status(StatusCode.OK).json({
+        success: true,
+        message: "User data fetched!",
+        data: req.user
+      });
+
+    } catch (err) {
+      return next(errRouter(err, "Error on fetching User data!"));
+    }
 
   }
 
@@ -120,7 +122,7 @@ class AuthController {
 
       try {
         // ##### generate token // token expiry 1 day
-        const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET_KEY!, { expiresIn: "1d" } );
+        const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET_KEY!, { expiresIn: "1d" });
 
 
         // #### Remove password from user data
@@ -142,7 +144,7 @@ class AuthController {
 
       } catch (err) {
 
-        return next(errRes("Error generating token!", StatusCode.INTERNAL_SERVER_ERROR));
+        return next(errRouter(err, "Error generating token!"));
 
       }
 
@@ -159,29 +161,21 @@ class AuthController {
     const token: string = req.cookies.token || req.headers.authorization?.split(" ")[1];
 
 
-
     try {
 
       await blackListedToken.blacklistToken(token);
 
+      res.clearCookie("token", {
+        expires: new Date()
+      });
+
+      res.status(StatusCode.OK).json({ success: true, message: "User Logged out!" });
+
     } catch (err) {
 
-      if (err instanceof DatabaseError) {
+      return next(errRouter(err, "Sign Out failed!"));
 
-        postgreErrorHandler(err);
-
-      } else {
-
-        return next(errRes("Sign Out failed!", StatusCode.BAD_REQUEST));
-
-      }
     }
-
-    res.clearCookie("token", {
-      expires: new Date()
-    });
-
-    res.status(StatusCode.OK).json({ success: true, message: "User Logged out!" });
 
   }
 
@@ -207,7 +201,7 @@ class AuthController {
       try {
 
         // hash password
-        let hashedPassword: string | undefined = password ? bcrypt.hashSync(password, 10) : undefined;
+        let hashedPassword: string | undefined = password ? bcrypt.hashSync(password.tostring(), 10) : undefined;
 
         const updatedUser: UserDataType = await authModel.updateUser({
           userId: req.user.id,
@@ -218,11 +212,7 @@ class AuthController {
 
       } catch (err) {
 
-        if (err instanceof DatabaseError) {
-          postgreErrorHandler(err);
-        } else {
-          return next(errRes("Updating User data failed!", StatusCode.INTERNAL_SERVER_ERROR));
-        }
+        return next(errRouter(err, "Updating user failed!"));
 
       }
 
@@ -241,7 +231,7 @@ class AuthController {
   public async deleteUser(req: Request, res: Response, next: NextFunction): Promise<void> {
 
     try {
-      
+
       const deletedUser: UserDataType = await authModel.deleteUser(req.user.id);
 
 
@@ -254,7 +244,9 @@ class AuthController {
       });
 
     } catch (err) {
-      return next(errRes("Updating User failed!", StatusCode.INTERNAL_SERVER_ERROR));
+
+      return next(errRouter(err, "Delete User failed!"));
+
     }
 
   }
