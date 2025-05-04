@@ -2,8 +2,6 @@ import { NextFunction, Request, Response } from "express";
 import gadgetModel from "../models/gadgetModel";
 import { GadgetDataType, StatusCode } from "../types";
 import { errRes, errRouter, isValidStatus } from "../utils/helperFunctions";
-import { DatabaseError } from "pg";
-import postgreErrorHandler from "../errorHandlers/postgreErrorHandler";
 
 
 

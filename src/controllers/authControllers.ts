@@ -1,10 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import { errRes, errRouter, isValidEmail } from "../utils/helperFunctions";
-import { BlacklistedTokenType, StatusCode, UserDataType } from "../types";
+import { StatusCode, UserDataType } from "../types";
 import authModel from "../models/authModel";
 import bcrypt from "bcryptjs";
-import { DatabaseError } from "pg";
-import postgreErrorHandler from "../errorHandlers/postgreErrorHandler";
 import jwt from "jsonwebtoken";
 import blackListedToken from "../models/blacklistedToken";
 
