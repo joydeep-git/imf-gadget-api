@@ -189,6 +189,32 @@ class AuthController {
     const { name, email, password } = req.body;
 
 
+    // CHECKS if values are same to existing data
+    if (name && req.user.name === name) {
+      return next(errRes("New name and existing name are same! Enter new value.", StatusCode.BAD_REQUEST))
+    }
+
+    if (email && req.user.email === email) {
+      return next(errRes("New email and existing email are same! Enter new value.", StatusCode.BAD_REQUEST))
+    }
+
+
+
+    // ##### check if new email already belongs to another user
+    try {
+
+      const getUser: UserDataType = await authModel.findUserByEmail(email);
+
+      if (getUser && getUser.id !== req.user.id) {
+        return next(errRes("Another account exists on this email! Provide another email.", StatusCode.BAD_REQUEST));
+      }
+
+    } catch (err) {
+      return next(errRouter(err, "Something wrong in Update user email check!"));
+    }
+
+
+
     // ##### if any of the data exists or show error
     if (name || email || password) {
 
@@ -200,12 +226,17 @@ class AuthController {
 
       try {
 
+        let hashedPassword: string | undefined;
+
         // hash password
-        let hashedPassword: string | undefined = password ? bcrypt.hashSync(password.tostring(), 10) : undefined;
+        if (password) {
+          hashedPassword = bcrypt.hashSync(String(password), 10);
+        }
 
         const updatedUser: UserDataType = await authModel.updateUser({
           userId: req.user.id,
-          name, email, hashedPassword
+          name, email,
+          hashedPassword
         });
 
         res.status(StatusCode.OK).json({ message: "User updated!", success: true, data: updatedUser });
