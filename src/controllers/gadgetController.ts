@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import gadgetModel from "../models/gadgetModel";
 import { GadgetDataType, StatusCode } from "../types";
-import { errRes, errRouter, isValidStatus } from "../utils/helperFunctions";
+import { capitalizeWords, errRes, errRouter, isValidStatus } from "../utils/helperFunctions";
 
 
 
@@ -83,13 +83,8 @@ class GadgetController {
 
         if (status) {
 
-
-          // MAKE FIRST ALPHABET CAPITAL
-          stat = status.substring(0, 1).toUpperCase() + status.substring(1, status.length).toLowerCase();
-
-
           // #### CHECK if status is valid
-          if (!isValidStatus(stat)) {
+          if (!isValidStatus( capitalizeWords(status) )) {
             return next(errRes("Invalid Status, please enter a valid status!", StatusCode.BAD_REQUEST));
           }
 
@@ -97,6 +92,7 @@ class GadgetController {
 
 
         const data: GadgetDataType[] = await gadgetModel.getGadgetDetails({ name, status: stat, userId: req.user.id });
+
 
         res.status(StatusCode.OK).json({
           success: true,
@@ -142,6 +138,8 @@ class GadgetController {
 
     } catch (err) {
 
+      return next(errRes("Error in Self Destruct!", StatusCode.BAD_REQUEST));
+
       return next(errRouter(err, "Error in Self Destruct!"));
 
     }
@@ -152,20 +150,19 @@ class GadgetController {
 
   public async updateGadget(req: Request, res: Response, next: NextFunction): Promise<void> {
 
-    const { name, action } = req.body;
+    const { name, action }: { name?: string;  action?: string; } = req.body;
 
-    const actionStates: string[] = ["deploy", "withdraw"];
+    const actionStates: string[] = ["Deploy", "Withdraw"];
 
     // validate action
-
-    if (action && !actionStates.includes(action.toLowerCase())) {
+    if (action && !actionStates.includes( capitalizeWords(action) )) {
       return next(errRes("Wrong Action! Only 'Deploy' & 'Withdraw' is accepted.", StatusCode.BAD_REQUEST));
     }
 
 
     try {
 
-      const data = await gadgetModel.updateGadget({ gadgetId: req.gadget.id, name, status: action.toLowerCase() === "deploy" ? "Deployed" : "Available" });
+      const data = await gadgetModel.updateGadget({ gadgetId: req.gadget.id, name, status: action ? (capitalizeWords(action) === "Deploy" ? "Deployed" : "Available" ) : undefined });
 
       res.status(StatusCode.OK).json({
         success: true,
