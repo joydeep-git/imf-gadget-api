@@ -81,3 +81,10 @@ export const isValidStatus = (status: string): boolean => {
 }
 
 
+
+// Captilazide words
+export const capitalizeWords = (word: string): string => {
+
+  return word.substring(0, 1).toUpperCase() + word.substring(1, word.length).toLowerCase();
+
+}
