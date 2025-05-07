@@ -44,7 +44,7 @@ const gadgetValidator = async (req: Request, res: Response, next: NextFunction) 
 
     // check if gadget is Decommissioned
     if (gadget.status === "Decommissioned") {
-      return next(errRes(`This Gadget Decommissioned At : ${new Date(gadget.decommission_at).toLocaleString()}`, StatusCode.BAD_REQUEST));
+      return next(errRes(`This Gadget Decommissioned At : ${gadget.decommission_at}`, StatusCode.BAD_REQUEST));
     }
 
 
