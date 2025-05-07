@@ -105,9 +105,9 @@ class GadgetModel {
       (await postgres.db.query(
         `UPDATE gadgets 
         SET status = $1, updated_at = CURRENT_TIMESTAMP
-        ${deleteGadget && " , decommission_at = CURRENT_TIMESTAMP "} 
+        ${deleteGadget ? " , decommission_at = CURRENT_TIMESTAMP " : ""} 
         WHERE id = $2 RETURNING *
-        ${ deleteGadget && randomCodeString }`, [status, gadgetId]
+        ${ deleteGadget ? randomCodeString : "" }`, [status, gadgetId]
       ))).rows[0];
 
   }
