@@ -17,6 +17,11 @@ class AuthController {
     const { name, email, password } = req.body;
 
 
+    if(password.length < 6) {
+      return next(errRes("Password Length should not be less than 6", StatusCode.BAD_REQUEST));
+    }
+
+
     // #### check if user sending data
     if (!name || !email || !password) {
 

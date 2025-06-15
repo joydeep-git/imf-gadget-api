@@ -77,10 +77,11 @@ class Server {
 
 
     // CORN JOB to keep the server running
-    this.app.get("/api/alive", (req: Request, res: Response) => {
+    this.app.get("/api/test", (req: Request, res: Response) => {
       res.status(200).json({
-        messge: "I am alive",
-        data: {}
+        data: {
+          message: "Server is running"
+        }
       })
     });
 
